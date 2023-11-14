@@ -17,7 +17,7 @@ On Timer1 Tick1
 _in Alias Pind.5
 Key_learn Alias Pinc.0
 Led_learn Alias Portd.6
-Relay Alias Portb.1
+Relay Alias Portb.2
 
 Config _in = Input
 Config Key_learn = Input
@@ -163,7 +163,6 @@ Do
    End If
 Loop
 ')
-
 
 
 
