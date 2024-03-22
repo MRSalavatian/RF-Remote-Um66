@@ -45,6 +45,7 @@ Dim Remote_code As Byte
 Dim Remote_count(4) As Word
 
 Dim Timee As Word
+Dim Music_flag As Bit
 
 Dim Save_id As String * 30
 Dim Eram_save_id As Eram String * 30
@@ -57,34 +58,30 @@ Led_learn = 0
 Relay = 0
 
 Do
-   If Key_learn = 1 Then
-      Adkey2 = 0
-      Waitms 500
-      Reset Watchdog
-      Waitms 500
-      Reset Watchdog
-      Waitms 500
-      Reset Watchdog
-      Waitms 500
-      Reset Watchdog
-      Waitms 500
-      Reset Watchdog
-      Waitms 500
-      Reset Watchdog
-      Adkey2 = 1
-
-
-   End If
-
-   Reset Watchdog
-
-Loop
-
-Do
    Gosub Read_rf
    Reset Watchdog
 
    If Timee > 0 Then Relay = 1 Else Relay = 0
+
+   If Relay = 1 And Music_flag = 0 Then
+
+      Printbin #3 , &H7E ; &HFF ; &H06 ; &H06 ; &H00 ; &H00 ; &H1E ; &HFE ; &HD7 ; &HEF       'volume
+      Waitms 300 : Reset Watchdog
+      Printbin #3 , &H7E ; &HFF ; &H06 ; &H18 ; &H00 ; &H00 ; &H00 ; &HFE ; &HE3 ; &HEF       'random playback
+      Waitms 300 : Reset Watchdog
+      'Printbin #3 , &H7E ; &HFF ; &H06 ; &H0D ; &H00 ; &H00 ; &H00 ; &HEF       'play
+      Printbin #3 , &H7E ; &HFF ; &H06 ; &H01 ; &H00 ; &H00 ; &H00 ; &HFE ; &HFA ; &HEF       'play next
+      Waitms 300 : Reset Watchdog
+      Music_flag = 1
+   End If
+
+   If Relay = 0 And Music_flag = 1 Then
+      Waitms 400 : Reset Watchdog
+      Printbin #3 , &H7E ; &HFF ; &H06 ; &H0E ; &H00 ; &H00 ; &H00 ; &HFE ; &HED ; &HEF       'pause
+      Waitms 200 : Reset Watchdog
+      Music_flag = 0
+   End If
+   Toggle Led_learn
 Loop
 '*****************************
 Tick1:
@@ -146,6 +143,11 @@ Read_rf:
             'If Remote_data = "0100" Then Timee = 50
             'If Remote_data = "1000" Then Timee = 120
 
+            If Remote_data = "0010" Then
+               Printbin #3 , &H7E ; &HFF ; &H06 ; &H0E ; &H00 ; &H00 ; &H00 ; &HFE ; &HED ; &HEF       'pause
+               Waitms 200 : Reset Watchdog
+               Music_flag = 0
+            End If
          Else
             Remote_data = ""
          End If
@@ -196,7 +198,6 @@ Do
    End If
 Loop
 ')
-
 
 
 
